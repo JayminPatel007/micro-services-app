@@ -1,46 +1,53 @@
-import express, {Request, Response} from 'express';
-import { body } from "express-validator";
+import express, { Request, Response } from 'express';
+import { body } from 'express-validator';
 import jwt from 'jsonwebtoken';
 
-import { User } from "../models/User";
-import {BadRequestError} from "../errors/bad-request-error";
-import { validateRequest } from "../middlewares/validate-request";
+import { validateRequest } from '../middlewares/validate-request';
+import { User } from '../models/user';
+import { BadRequestError } from '../errors/bad-request-error';
 
 const router = express.Router();
 
-router.post('/api/users/signup' ,
-    [
-        body('email').isEmail().withMessage('Email Must be Valid'),
-        body('password')
-            .trim()
-            .isLength({min: 4, max: 20})
-            .withMessage('Password must be between 4 to 20 chars'),
-    ], validateRequest,
-    async (req: Request, res: Response)=> {
-
+router.post(
+  '/api/users/signup',
+  [
+    body('email')
+      .isEmail()
+      .withMessage('Email must be valid'),
+    body('password')
+      .trim()
+      .isLength({ min: 4, max: 20 })
+      .withMessage('Password must be between 4 and 20 characters')
+  ],
+  validateRequest,
+  async (req: Request, res: Response) => {
     const { email, password } = req.body;
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-        throw new BadRequestError('Email already in Use');
+      throw new BadRequestError('Email in use');
     }
 
-    const user = User.build({email, password});
+    const user = User.build({ email, password });
     await user.save();
 
-    const payload = {
+    // Generate JWT
+    const userJwt = jwt.sign(
+      {
         id: user.id,
         email: user.email
-    };
+      },
+      process.env.JWT_KEY!
+    );
 
-    const userJwt = jwt.sign(payload, process.env.JWT_KEY!);
-
-    // Store it in session object
+    // Store it on session object
     req.session = {
-        jwt: userJwt
+      jwt: userJwt
     };
 
     res.status(201).send(user);
-});
+  }
+);
 
-export {router as signupRouter};
+export { router as signupRouter };
