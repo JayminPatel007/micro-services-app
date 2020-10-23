@@ -39,7 +39,7 @@ afterAll(async () => {
 
 global.signup = () => {
   const payload = {
-    id: '12rwrsgseg',
+    id: global.createMongooseId(),
     email: 'test@test.com'
   };
 
