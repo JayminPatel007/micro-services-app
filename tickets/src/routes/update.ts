@@ -8,6 +8,8 @@ import {
 } from '@jaymintickets/common'
 
 import { Ticket } from "../models/ticket";
+import { TicketUpdatedPublisher } from "../events/publishers/ticket-updated-publisher";
+import { natsWrapper } from '../nats-wrapper';
 
 interface RequestBody {
     title: string,
@@ -45,6 +47,14 @@ router.put('/api/tickets/:id',
     });
 
     await ticket.save();
+
+    new TicketUpdatedPublisher(natsWrapper.client)
+        .publish({
+            id: ticket.id,
+            title: ticket.title,
+            price: ticket.price,
+            userId: ticket.userId
+        });
 
     res.send(ticket);
 });
