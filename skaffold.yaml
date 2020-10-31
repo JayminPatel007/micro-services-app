@@ -40,3 +40,11 @@ build:
         manual:
           - src: 'src/**/*.ts'
             dest: .
+    - image: jaymin007/experation
+      context: experation
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: 'src/**/*.ts'
+            dest: .

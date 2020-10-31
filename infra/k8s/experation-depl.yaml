@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: experation-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: experation
+  template:
+    metadata:
+      labels:
+        app: experation
+    spec:
+      containers:
+        - name: experation
+          image: jaymin007/experation
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: 'http://nats-srv:4222'
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: REDIS_HOST
+              value: experation-redis-srv
