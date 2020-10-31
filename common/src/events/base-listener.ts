@@ -11,7 +11,7 @@ export abstract class Listener<T extends Event> {
         this.client = client;
     }
 
-    abstract onMessage(data: T['data'], message: Message): void;
+    abstract async onMessage(data: T['data'], message: Message): Promise<void>;
 
     get subscriptionOptions() {
         return this.client

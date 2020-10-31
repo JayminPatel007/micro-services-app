@@ -5,7 +5,8 @@ import { Ticket } from "../../models/ticket";
 it('fetches a ticket', async () => {
     const ticket = Ticket.build({
         title: 'concert',
-        price: 20
+        price: 20,
+        id: global.createMongooseId()
     });
     await ticket.save();
 
@@ -31,7 +32,8 @@ it('fetches a ticket', async () => {
 it('returns an error if one usr tries to fetch order of other user', async () => {
     const ticket = Ticket.build({
         title: 'concert',
-        price: 20
+        price: 20,
+        id: global.createMongooseId()
     });
     await ticket.save();
 

@@ -9,7 +9,8 @@ it('marks order as cancelled', async () => {
     const user = global.signup();
     const ticket = Ticket.build({
         title: 'concert',
-        price: 20
+        price: 20,
+        id: global.createMongooseId()
     });
 
     await ticket.save();
@@ -37,7 +38,8 @@ it('emits an order cancelled event', async () => {
     const user = global.signup();
     const ticket = Ticket.build({
         title: 'concert',
-        price: 20
+        price: 20,
+        id: global.createMongooseId()
     });
 
     await ticket.save();
