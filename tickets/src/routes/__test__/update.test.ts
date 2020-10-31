@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { app } from "../../app";
 import { natsWrapper } from "../../nats-wrapper";
+import {Ticket} from "../../models/ticket";
 
 it('returns a 404 if provided id does not exist', async () => {
     const id = global.createMongooseId();
@@ -145,5 +146,31 @@ it('publishes an event', async () => {
         .expect(200);
 
     expect(natsWrapper.client.publish).toHaveBeenCalled();
+});
+
+it('rejects an updates if the ticket is reserved', async () => {
+    const cookie = global.signup();
+    const response = await request(app)
+        .post('/api/tickets')
+        .set('Cookie', cookie)
+        .send({
+            title: 'test',
+            price: 20,
+        });
+
+    const createdTicket = await Ticket.findById(response.body.id);
+    createdTicket!.set('orderId', global.createMongooseId());
+    await createdTicket!.save();
+
+    await request(app)
+        .put(`/api/tickets/${response.body.id}`)
+        .set('Cookie', cookie)
+        .send({
+            title: 'test2',
+            price: 21
+        })
+        .expect(400);
+
+
 });
 

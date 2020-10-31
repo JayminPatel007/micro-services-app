@@ -4,7 +4,7 @@ import {
     requireAuth,
     validateRequest,
     NotFoundError,
-    NotAuthorizedError
+    NotAuthorizedError, BadRequestError
 } from '@jaymintickets/common'
 
 import { Ticket } from "../models/ticket";
@@ -35,6 +35,10 @@ router.put('/api/tickets/:id',
 
     if (!ticket) {
         throw new NotFoundError();
+    }
+
+    if (ticket.orderId) {
+        throw new BadRequestError('Can not edit reserved ticket');
     }
 
     if (ticket.userId !== req.currentUser!.id) {
