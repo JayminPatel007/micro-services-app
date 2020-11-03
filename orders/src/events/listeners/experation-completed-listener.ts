@@ -15,6 +15,10 @@ export class ExperationCompletedListener extends Listener<ExperationCompleteEven
             throw new Error('Order not found');
         }
 
+        if (order.status === OrderStatus.Complete) {
+            return message.ack();
+        }
+
         order.set({
             status: OrderStatus.Canceled
         });

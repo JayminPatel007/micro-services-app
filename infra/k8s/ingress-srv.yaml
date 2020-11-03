@@ -10,6 +10,10 @@ spec:
     - host: jaymin007.ticketing.dev
       http:
         paths:
+          - path: /api/payments/?(.*)
+            backend:
+              serviceName: auth-srv
+              servicePort: 4000
           - path: /api/users/?(.*)
             backend:
               serviceName: auth-srv
