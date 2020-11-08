@@ -4,10 +4,12 @@ import {
     requireAuth,
     validateRequest,
     BadRequestError,
-    NotFoundError
+    NotFoundError, NotAuthorizedError, OrderStatus
 } from "@jaymintickets/common";
 
 import { Order } from "../models/order";
+import { Payment } from "../models/payment";
+import { stripe } from "../stripe";
 
 const router = express.Router();
 
@@ -23,7 +25,27 @@ router.post('/api/payments',
     ],
     validateRequest,
     async (req: Request, res: Response) => {
-    res.send({success: true});
+    const { token, orderId } = req.body;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        throw new NotFoundError();
+    }
+    if (order.userId !== req.currentUser!.id) {
+        throw new NotAuthorizedError();
+    }
+    if (order.status === OrderStatus.Canceled) {
+        throw new BadRequestError('Can not pay for the cancelled Order');
+    }
+
+    const charge = await stripe.charges.create({
+        currency: 'inr',
+        amount: order.price * 100,
+        source: token,
+    });
+
+    res.status(201).send({success: true});
 });
 
 export { router as createChargeRouter };

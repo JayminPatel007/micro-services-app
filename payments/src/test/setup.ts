@@ -7,7 +7,7 @@ jest.mock('../nats-wrapper');
 declare global {
   namespace NodeJS {
     interface Global {
-      signup(): string[];
+      signup(id?: string): string[];
       createMongooseId(): string;
     }
   }
@@ -40,9 +40,9 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-global.signup = () => {
+global.signup = (id?: string) => {
   const payload = {
-    id: global.createMongooseId(),
+    id: id || global.createMongooseId(),
     email: 'test@test.com'
   };
 
